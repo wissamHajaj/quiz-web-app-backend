@@ -1,5 +1,8 @@
 <?php 
     require_once '../../db/connect.php';
+    require_once '../../utils/utils.php';
+
+    check_request_method('POST');
 
 
     $text = $_POST['text'] ?? null;
@@ -16,24 +19,13 @@
     }
 
     try {
-        $query = "SELECT * FROM quizes WHERE id = :id";
+        find_quiz_by_id($conn, $quiz_id);
+
+        $query = "INSERT INTO questions (text, quiz_id) VALUES (:text, :quiz_id)";
         $stmt = $conn->prepare($query);
-        $stmt->bindParam(":id", $quiz_id);
+        $stmt->bindParam(":text", $text);
+        $stmt->bindParam(":quiz_id", $quiz_id);
         $stmt->execute();
-        $quiz = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if(!$quiz) {
-            echo json_encode(["status" => "error", "message" => "Invalid quiz Id"]);
-            exit;
-        }
-
-
-
-        $insert_query = "INSERT INTO questions (text, quiz_id) VALUES (:text, :quiz_id)";
-        $insert_stmt = $conn->prepare($insert_query);
-        $insert_stmt->bindParam(":text", $text);
-        $insert_stmt->bindParam(":quiz_id", $quiz_id);
-        $insert_stmt->execute();
         echo json_encode(['status' => 'success', "message" => "Quiz question created succesfully"]);
 
 

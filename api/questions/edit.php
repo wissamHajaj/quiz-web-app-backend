@@ -1,11 +1,8 @@
 <?php 
     require_once '../../db/connect.php';
+    require_once '../../utils/utils.php';
 
-
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
-        exit;
-    }
+    check_request_method('POST');
     
     $id = $_POST['id'] ?? null; 
     $text = $_POST['text'] ?? null;
@@ -29,22 +26,13 @@
         }
     
         if($quiz_id && $quiz_id !== '') {
-            $query = "SELECT * FROM quizes WHERE id = :id";
-            $stmt = $conn->prepare($query);
-            $stmt->bindParam(":id", $quiz_id);
-            $stmt->execute();
-            $quize = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if(!$quize) {
-                echo json_encode(["status" => "error", "Message" => "Invalid quiz Id"]);
-                exit;
-            }
+            find_quiz_by_id($conn, $quiz_id);
         }
 
         $fields = [];
         $params = [];
 
-        if($text !== null) {
+        if($text !== null && $text !== '') {
             $fields[] = "text = :text";
             $params[":text"] = $text;
         }

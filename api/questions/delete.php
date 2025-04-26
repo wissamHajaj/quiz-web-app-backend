@@ -1,10 +1,9 @@
 <?php 
     require_once '../../db/connect.php';
+    require_once '../../utils/utils.php';
 
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
-        exit;
-    }
+    check_request_method('POST');
+
     $id = $_POST['id'] ?? null;
 
     if(!$id) {

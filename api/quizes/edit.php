@@ -1,34 +1,25 @@
 <?php
    require_once '../../db/connect.php';
+   require_once '../../utils/utils.php';
+   check_request_method('POST');
 
    $id = $_POST['id'] ?? null;
    $title = $_POST['title'] ?? null;
    $image = $_POST['image'] ?? null;
+
    if(!$id) {
     echo json_encode(["status" => "error", "Message" => "quiz id is required"]);
     exit;
    }
 
-   // check if the quiz exist
-   $query = "SELECT * FROM quizes WHERE id = :id";
-   $stmt = $conn->prepare($query);
-   $stmt->bindParam(':id', $id);
-   $stmt->execute();
-   $quiz = $stmt->fetch(PDO::FETCH_ASSOC);
-
-   if(!$quiz) {
-       echo json_encode(["status" => "error", "message" => "Quiz not found"]);
-       exit;
-    }
-
-
+   find_quiz_by_id($conn, $id);
 
    $fields = [];
    $params = [];
 
-   if($title !== null) {
-    $fields[] = "title = :title";
-    $params[":title"] = $title;
+   if($title !== null && $title !== '') {
+        $fields[] = "title = :title";
+        $params[":title"] = $title;
    }
 
    if(isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK){
@@ -45,7 +36,6 @@
             }
         }
 
-
         $imageName = $_FILES['image']['name'];
         $imageTemp = $_FILES['image']['tmp_name'];
         move_uploaded_file($imageTemp, '../../assets/images/quiz-images/' . $imageName);
@@ -60,8 +50,6 @@
 
    $params[":id"] = $id;
    $query = "UPDATE quizes SET " . implode(", ", $fields) . " WHERE id = :id";
-
-
 
     try {
         $stmt = $conn->prepare($query);
