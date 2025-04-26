@@ -1,12 +1,18 @@
-<?php 
-    require_once '../../db/connect.php';
-    require_once '../../utils/check_request_method.php';
+<?php
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Headers: Content-Type');
+    header('Content-Type: application/json');
 
+    require_once '../../db/connect.php';
+    require_once '../../utils/utils.php';
+   
     check_request_method('POST');
 
-    $name = $_POST['name'] ?? null;
-    $email = $_POST['email'] ?? null;
-    $password = $_POST['password'] ?? null;
+    $input = json_decode(file_get_contents("php://input"), true);
+
+    $name = $input['name'] ?? null;
+    $email = $input['email'] ?? null;
+    $password = $input['password'] ?? null;
 
     if(!$name || !$email || !$password) {
         echo json_encode(['status' => 'error', 'message' => 'All fields required']);
@@ -51,7 +57,7 @@
         $insert_query_stmt->bindParam(':password', $hashed_password);
         $insert_query_stmt->execute();
     
-        echo json_encode(['status' => 'error', 'message' => 'success']);
+        echo json_encode(['status' => 'success', 'message' => 'Registration successful']);
 
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', "message" => $e->getMessage()]);

@@ -1,11 +1,16 @@
 <?php 
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Headers: Content-Type');
+    header('Content-Type: application/json');
+    
     require_once '../../db/connect.php';
-    require_once '../../utils/check_request_method.php';
+    require_once '../../utils/utils.php';
 
     check_request_method('POST');
-    
-    $email = $_POST['email'] ?? null;
-    $password = $_POST['password'] ?? null;
+    $input = json_decode(file_get_contents("php://input"), true);
+
+    $email = $input['email'] ?? null;
+    $password = $input['password'] ?? null;
 
     if(!$email || !$password) {
         echo json_encode(['status' => 'error', 'message' => 'All fields required']);
@@ -29,7 +34,7 @@
             exit;
         }
         if(password_verify($password, $user_exist['password'])) {
-            echo json_encode(['status' => 'error', 'message' => 'success']);
+            echo json_encode(['status' => 'success', 'message' => 'Login successful']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Incorrect password']);
         }
